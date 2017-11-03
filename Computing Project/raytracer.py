@@ -63,6 +63,7 @@ class OpticalElement:
   def propagate_ray(self, ray):
     "propagate a ray through the optical element"
     raise NotImplementedError()
+    
 
 class SphericalRefraction(OpticalElement):
     def __init__(self,z0,curv,n1,n2,aprad,centre = None):
@@ -129,20 +130,6 @@ class SphericalRefraction(OpticalElement):
             prefract = point
             ray.append(prefract,vrefract)
         return
-    
-    def reflect_ray(self, ray):
-        point = np.array(self.intercept(ray)[0])
-        inci = np.array(self.intercept(ray)[-1])
-        incinorm = inci/np.linalg.norm(inci)
-        if self.__curv == 0:
-           normal = np.array([0,0,1])
-        else:
-            normal = np.add(inci,np.subtract(ray.p(),self.__centre))
-        normalnorm = normal/np.linalg.norm(normal)
-        vreflect = reflect(incinorm,normalnorm)
-        preflect = point
-        ray.append(preflect,vreflect)
-        return
         
     
 
@@ -183,26 +170,12 @@ def snell(n1,n2,inci,normal): #inci and normal should be unit vectors
         vrefract = (relindex*inci) + ((relindex*np.cos(theta1))-np.cos(theta2))*normal
     return vrefract
 
-"""
-----------------------------------------------------------------------
-Reflection is a function which takes in a normalised incident ray and a normal,
-and returns a reflected ray. Again, this a generic reflection function, and 
-doesn't depend on the surface, and hence is defined as a seperate function outside
-all the classes.
-
-----------------------------------------------------------------------
-"""
-      
-def reflect(inci,normal):
-    vreflect = inci + 2*(np.dot(inci,normal))*normal
-    return vreflect
 
 
     
 sp = SphericalRefraction(95,0.2,1,1.5,1.,[0,0,100])  #(self,z0,curv,n1,n2,aprad,centre)
 sp2 = SphericalRefraction(102,0,1.5,1.,1)
-val = 102.5
-op = OutputPlane(val)
+
 
 
 
@@ -218,7 +191,6 @@ def bundleparallel(start,stop,number):
         zcord = [i[-1] for i in verts]
         plt.plot(zcord,xcord)
     plt.show()
-#bundleparallel(-11,11,10);
 
 def bundlepolar(start,stop,number): 
     space = np.linspace(start,stop,number)
@@ -236,52 +208,7 @@ def bundlepolar(start,stop,number):
         xcord.append(ray1.p()[0])
         ycord.append(ray1.p()[1])
     return
-"""
-bundlepolar(0.0,0.01,5)
-plt.plot(x,y,'ro')
-plt.show()
-plt.plot(xcord,ycord,'ro')
-plt.show()
 
-"""
-rms = []
-xaxis = []
-"""
-for i in range(300):
-    val = 101+ 0.01*i
-    xaxis.append(val)
-    op = OutputPlane(val)
-    rsum = 0
-    bundlepolar(0.0,0.1,3)
-    for i in range(len(xcord)):
-        rsq = xcord[i]**2 + ycord[i]**2
-        rsum = rsum + rsq
-    meansq = rsum/len(xcord)
-    rms.append(np.sqrt(meansq))
-
-    
-        
-plt.plot(xaxis,rms)
-plt.show()
-
-"""
-
-
-rsum = 0
-for i in range(300):
-    xaxis.append(0.001*i)
-    bundlepolar(0.0,0.001*i,5)
-    for i in range(len(xcord)):
-        rsq = xcord[i]**2 + ycord[i]**2
-        rsum = rsum + rsq
-    meansq = rsum/len(xcord)
-    rms.append(np.sqrt(meansq))
-plt.plot(xaxis,rms)
-plt.show()
-
-    
-
-    
     
     
 
